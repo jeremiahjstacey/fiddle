@@ -17,9 +17,8 @@ public class ConfigurationSupportTest {
 	public void validateSchemaSupport() throws Exception {
 		File xsd = new File("./src/main/xsd/esapi-validation-lib.xsd");
 		Assert.assertTrue(xsd.exists());
-		//InputStream xsd = ConfigurationSupportTest.class.getResourceAsStream("./src/main/xsd/esapi-validation-lib.xsd");
+
 		InputStream xml = ConfigurationSupportTest.class.getResourceAsStream("/valid_app.xml");
-		
 		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		Schema schema = factory.newSchema(new StreamSource(xsd));
 		javax.xml.validation.Validator validator = schema.newValidator();
