@@ -1,5 +1,6 @@
 package org.owasp.esapi.validation;
 
+import java.io.File;
 import java.io.InputStream;
 
 import javax.xml.XMLConstants;
@@ -7,13 +8,16 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 
 public class ConfigurationSupportTest {
 	@Test
 	public void validateSchemaSupport() throws Exception {
-		InputStream xsd = ConfigurationSupportTest.class.getResourceAsStream("/esapi-validation-lib.xsd");
+		File xsd = new File("./src/main/xsd/esapi-validation-lib.xsd");
+		Assert.assertTrue(xsd.exists());
+		//InputStream xsd = ConfigurationSupportTest.class.getResourceAsStream("./src/main/xsd/esapi-validation-lib.xsd");
 		InputStream xml = ConfigurationSupportTest.class.getResourceAsStream("/valid_app.xml");
 		
 		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
