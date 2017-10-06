@@ -23,8 +23,20 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>jaxb2-maven-plugin</artifactId>
 				<version>2.3.1</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!-- The name of your generated source package -->
+					<packageName>org.owasp.esapi.validation.jaxb.generated</packageName>
+				</configuration>
 			</plugin>
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
 				<version>1.9</version>
@@ -37,12 +49,12 @@
 						</goals>
 						<configuration>
 							<sources>
-								<source>${basedir}/target/generated-sources/jaxb/org/owasp/esapi/validation/jaxb/generated</source>
+								<source>${basedir}/target/generated-sources/jaxb</source>
 							</sources>
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 		</plugins>
 	</build>
 
