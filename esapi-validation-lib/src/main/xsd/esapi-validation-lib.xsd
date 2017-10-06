@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:esapi="http://org.owasp.esapi" targetNamespace="http://org.owasp.esapi">
+
+	<xs:element name="esapi">
+		<!-- Root of xml definition -->
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="validators">
+					<!-- This is the referenceable group of validators that can be composed 
+						in named configurations, or used directly -->
+					<xs:complexType>
+						<xs:sequence minOccurs="0" maxOccurs="1000">
+							<xs:element name="validator">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="id" type="xs:string" />
+										<xs:element name="type" type="xs:string" />
+										<xs:sequence minOccurs="0" maxOccurs="1">
+											<xs:element name="args">
+												<xs:complexType>
+													<xs:sequence minOccurs="1" maxOccurs="10">
+													<!-- I'm being a jerk. If you have more than 10 ctr args 
+																		to your validator, then it's probably doing too much. Break it down and work 
+																		on composition in the <configurations/> block below.-->
+														<xs:element name="arg">
+															<xs:complexType>
+																<xs:sequence minOccurs="1" maxOccurs="1">
+																	<xs:element name="type" type="xs:string" />
+																	<xs:element name="value" type="xs:string" />
+																</xs:sequence>
+															</xs:complexType>
+														</xs:element>
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+
+				<xs:element name="configuration">
+					<!-- These will be the named rule sets that can be applied to checks. 
+						Combine one or more validators into complex boolean logics. -->
+					<xs:complexType>
+						<xs:sequence minOccurs="0" maxOccurs="1000">
+							<xs:element name="and">
+								<xs:complexType>
+									<xs:sequence minOccurs="1" maxOccurs="5">
+										<xs:element type="xs:string" name="rule" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="or">
+								<xs:complexType>
+									<xs:sequence minOccurs="1" maxOccurs="5">
+										<xs:element type="xs:string" name="rule" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
