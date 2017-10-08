@@ -60,19 +60,22 @@ public class ConfigurationSupportTest {
 		ValidationResponse response = ev.check(matchAnyCheck, test.hasContent); 
 		Assert.assertTrue(response.getResponseDetail(), response.isValid());
 		
+		
+		Check classCheck = TestRef.class.getDeclaredAnnotation(Check.class);
+		TestRef classRefTest = null;
+		Assert.assertFalse(ev.check(classCheck, classRefTest).isValid());
+		
+		classRefTest = new TestRef();
+		classRefTest.value = null;
+		
+		Assert.assertFalse(ev.check(classCheck, classRefTest).isValid());
+		
+		classRefTest.value = "";
+		Assert.assertFalse(ev.check(classCheck, classRefTest).isValid());
+		
+		classRefTest.value = "valid";
+		Assert.assertTrue(ev.check(classCheck, classRefTest).isValid());
 	}
 	
-	public class TestRef {
-		@Check(rule="NOT_NULL")
-		String value;
-		
-		@Check(rule="IS_NULL")
-		String value2;
-		
-		@Check(rule="STR_NOT_EMPTY")
-		String value3;
-		
-		@Check(rule="STR_Match_ANY")
-		String hasContent = "hello world";
-	}
+	
 }

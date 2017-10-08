@@ -10,6 +10,7 @@ public class SampleValidationConfiguration implements ValidationConfiguration {
 	public SampleValidationConfiguration() {
 		delegates.add(new StringValidation());
 		delegates.add(new GeneralObjectValidation());
+		delegates.add(new TestRefValidation());
 	}
 	
 	@Override
