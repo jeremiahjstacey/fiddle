@@ -51,7 +51,11 @@ public class ESAPIValidation {
 		
 		if (vc != null) {
 			Validator<Object> validator = (Validator<Object>) vc.getValidator(rule);
-			result = validator.validate(ref);
+			if (validator == null) {
+				result = new ValidationResponse(ValidationStatus.ERROR, "Unable to locate Validator by Id: " + rule);	
+			} else {
+				result = validator.validate(ref);
+			}
 		}
 			
 		return result;
