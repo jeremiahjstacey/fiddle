@@ -1,9 +1,5 @@
 package org.owasp.esapi.validation;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -11,10 +7,6 @@ import javax.xml.bind.Unmarshaller;
 import org.owasp.esapi.validation.ValidationResponse.ValidationStatus;
 import org.owasp.esapi.validation.annotation.Check;
 import org.owasp.esapi.validation.jaxb.generated.Esapi;
-import org.owasp.esapi.validation.jaxb.generated.Esapi.Validators;
-import org.owasp.esapi.validation.jaxb.generated.Esapi.Validators.Validator;
-import org.owasp.esapi.validation.jaxb.generated.Esapi.Validators.Validator.Args;
-import org.owasp.esapi.validation.jaxb.generated.Esapi.Validators.Validator.Args.Arg;
 import org.owasp.esapi.validation.jaxb.generated.ObjectFactory;
 
 public class ESAPIValidation {
@@ -37,54 +29,31 @@ public class ESAPIValidation {
 	}
 
 	public ValidationResponse check(String rule, Object ref) {
-		Validators allRules = validationConfig.getValidators();
-		Class<?> validatorClass = null;
-		Class<?>[] validatorCtrTypes = new Class<?>[] {};
-		Object[] validatorCtrArgs = new Object[] {};
-
 		ValidationResponse result = null;
+		
+		String validationConfigClass = validationConfig.getValidationProvider().getClazz();
+		
+		ValidationConfiguration vc  = null;
+		//Expect a no-arg constructor.
+		Class<?> classRef = null;
 		try {
-			for (Validator validator : allRules.getValidator()) {
-				if (validator.getId().equals(rule)) {
-					validatorClass = Class.forName(validator.getType());
-					Args args = validator.getArgs();
-					if (args != null) {
-						List<Arg> arguments = args.getArg();
-						int ttlArgCount = arguments.size();
-						validatorCtrTypes = new Class<?>[ttlArgCount];
-						validatorCtrArgs = new Object[ttlArgCount];
-						for (int index = 0; index < ttlArgCount; index++) {
-							Arg arg = arguments.get(index);
-							validatorCtrTypes[index] = Class.forName(arg.getType());
-							validatorCtrArgs[index] = arg.getValue();
-						}
-					}
-					break;
-				}
-			}
-
-			if (validatorClass != null) {
-				if (validatorCtrTypes.length > 0) {
-					result = new ValidationResponse(ValidationStatus.ERROR,
-							"Unimplemented Feature: Validator with Constructor Arguments presently not supported.  Refactor code to provide a no-argument constructor: "
-									+ String.format("%s [%s]", rule, validatorClass.getSimpleName()));
-				} else {
-					Constructor<?> ctr = validatorClass.getConstructor(validatorCtrTypes);
-					@SuppressWarnings("unchecked")
-					org.owasp.esapi.validation.Validator<Object> check = (org.owasp.esapi.validation.Validator<Object>) ctr
-					.newInstance(validatorCtrArgs);
-					result = check.validate(ref);
-				}
+			classRef = Class.forName(validationConfigClass);
+			if (!ValidationConfiguration.class.isAssignableFrom(classRef)) {
+				result = new ValidationResponse(ValidationStatus.ERROR, "Configured ValidationProvider class does not match expected API for ValidationConfiguration!");
+				classRef = null;
 			} else {
-				result = new ValidationResponse(ValidationStatus.ERROR,
-						"Unable to validate data.  No rule defined for specified ID: " + rule);
+				vc = (ValidationConfiguration) classRef.newInstance();
 			}
-
-		} catch (NoSuchMethodException | SecurityException | ClassNotFoundException | InstantiationException
-				| IllegalAccessException | IllegalArgumentException | InvocationTargetException exception) {
-			result = new ValidationResponse(ValidationStatus.ERROR,
-					"Unable to validate data. Exceptions occurred during processing.", exception);
+			
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+			result = new ValidationResponse(ValidationStatus.ERROR, "Failed to initialize configured ValidationProvider class reference", e);
+		} 
+		
+		if (vc != null) {
+			Validator<Object> validator = (Validator<Object>) vc.getValidator(rule);
+			result = validator.validate(ref);
 		}
+			
 		return result;
 	}
 }

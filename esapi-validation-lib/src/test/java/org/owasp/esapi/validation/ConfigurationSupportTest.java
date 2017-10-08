@@ -35,7 +35,7 @@ public class ConfigurationSupportTest {
 		JAXBContext context = JAXBContext.newInstance(ObjectFactory.class);
 		Unmarshaller unmarshaller = context.createUnmarshaller();		
 		Esapi validationConfig = (Esapi) unmarshaller.unmarshal(ESAPIValidation.class.getResourceAsStream("/valid_app.xml"));		
-		Assert.assertEquals(5, validationConfig.getValidators().getValidator().size());	
+		Assert.assertEquals(SampleValidationConfiguration.class.getName(), validationConfig.getValidationProvider().getClazz());	
 	}
 	
 	@Test
