@@ -18,17 +18,7 @@
 		</validator>
 		<validator>
 			<id>STR_Match_ANY</id>
-			<type>org.owasp.esapi.validation.strings.StringPatternValidator</type>
-			<args>
-				<arg>
-					<type>java.lang.String</type>
-					<value>*</value>
-				</arg>
-				<arg>
-					<type>java.lang.Boolean</type>
-					<value>true</value>
-				</arg>
-			</args>
+			<type>org.owasp.esapi.validation.MatchAnyString</type>			
 		</validator>
 
 		<validator>

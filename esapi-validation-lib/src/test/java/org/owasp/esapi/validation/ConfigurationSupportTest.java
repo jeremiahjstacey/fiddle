@@ -45,19 +45,32 @@ public class ConfigurationSupportTest {
 		TestRef test = new TestRef();
 		Check notNullCheck = TestRef.class.getDeclaredField("value").getDeclaredAnnotation(Check.class);
 		Check matchAnyCheck = TestRef.class.getDeclaredField("hasContent").getDeclaredAnnotation(Check.class);
+		Check isNullCheck = TestRef.class.getDeclaredField("value2").getDeclaredAnnotation(Check.class);
+		Check notEmptyCheck = TestRef.class.getDeclaredField("value3").getDeclaredAnnotation(Check.class);
+		
 		
 		Assert.assertFalse(ev.check(notNullCheck, test.value).isValid());
 		test.value = "";
 		Assert.assertTrue(ev.check(notNullCheck, test.value).isValid());
 		
+		Assert.assertTrue(ev.check(isNullCheck, test.value2).isValid());
+		test.value3="data";
+		Assert.assertTrue(ev.check(notEmptyCheck, test.value3).isValid());
 		//This doesn't work.  Need to fight with primitives in the ctr arg list.
-		//Assert.assertTrue(ev.check(matchAnyCheck, test.hasContent).isValid());
+		ValidationResponse response = ev.check(matchAnyCheck, test.hasContent); 
+		Assert.assertTrue(response.getResponseDetail(), response.isValid());
 		
 	}
 	
 	public class TestRef {
 		@Check(rule="NOT_NULL")
 		String value;
+		
+		@Check(rule="IS_NULL")
+		String value2;
+		
+		@Check(rule="STR_NOT_EMPTY")
+		String value3;
 		
 		@Check(rule="STR_Match_ANY")
 		String hasContent = "hello world";
