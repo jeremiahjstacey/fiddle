@@ -64,4 +64,14 @@ public final class Validators {
 			}
 		};
 	}
+	
+	public static <F,T> Validator<F> chain(final Validator<T> nextStage, final ValidationDataStage<F, T> transform) {
+		return new Validator<F> (){
+			@Override
+			public ValidationResponse validate(F data) {
+				T transformedData = transform.prepareData(data);
+				return nextStage.validate(transformedData);
+			}			
+		};		
+	}
 }

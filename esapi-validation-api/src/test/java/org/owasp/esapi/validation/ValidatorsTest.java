@@ -9,6 +9,9 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.owasp.esapi.validation.ValidationResponse.ValidationStatus;
+import org.owasp.esapi.validation.numbers.RangeValidator;
+import org.owasp.esapi.validation.objects.NotNullValidator;
+import org.owasp.esapi.validation.strings.NotEmptyValidator;
 
 @SuppressWarnings("unchecked")
 public class ValidatorsTest {
@@ -179,5 +182,44 @@ public class ValidatorsTest {
 
 		Mockito.verify(pass, Mockito.times(1)).validate(data);
 		Mockito.verify(failure, Mockito.times(4)).validate(data);
+	}
+	
+	
+	@Test
+	public void testDataTypeChain() {
+		ValidationDataStage<String, Integer> stringToInt = new ValidationDataStage<String, Integer>() {			
+			@Override
+			public Integer prepareData(String input) {
+				return Integer.parseInt(input);
+			}
+		};
+		
+		RangeValidator<Integer> stage = new RangeValidator<>(0, 100, true, false);
+		Validator<String> testStringAsIntRange = Validators.chain(stage, stringToInt);
+		Validator<String> stringNotNull = new NotNullValidator<>();
+		Validator<String> stringNotEmpty = new NotEmptyValidator();
+		
+		List<Validator<String>> checks = new ArrayList<>();
+		checks.add(stringNotNull);
+		checks.add(stringNotEmpty);
+		checks.add(testStringAsIntRange);
+		
+		Validator<String> testInstance = Validators.and(checks);
+		String data = "5";
+		Assert.assertTrue(testInstance.validate(data).isValid());
+		
+		data = null;
+		Assert.assertFalse(testInstance.validate(data).isValid());
+		
+		data = "";
+		Assert.assertFalse(testInstance.validate(data).isValid());
+		
+		data = "-1";
+		Assert.assertFalse(testInstance.validate(data).isValid());
+		
+		
+		data = "100";
+		Assert.assertFalse(testInstance.validate(data).isValid());
+		
 	}
 }
